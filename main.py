@@ -1582,7 +1582,7 @@ def past_level():
 		stairs = objects[file['stairs_index']]  #same for the stairs
 		#upstairs = objects[file['upstairs_index']]
 		file.close()
-		dungeon_name = "The Ship"
+		dungeon_name = "Your Ship"
 		message('You climb through the airlock back into the ship')
 		initialize_fov()
 
