@@ -850,41 +850,6 @@ def from_dungeon_level(table):
 			return value
 	return 0
 
-# def place_monsters(room):
-#
-# 	max_monsters = from_dungeon_level([[2, 1], [3, 5], [4, 8]])
-# 	#chance of each monster
-# 	monster_chances ={}
-# 	monster_chances['thug'] = from_dungeon_level([[80, 2], [40, 5], [10,9], [0, 12]])   #thug always shows up, even if all other monsters have 0 chance
-# 	monster_chances['thugboss'] = from_dungeon_level([[10, 3], [15, 5], [10, 7], [0,12]])
-#
-# 	monster_chances['mutant'] = from_dungeon_level([[15, 4], [30, 6], [40, 9]])
-# 	monster_chances['fastmutant'] = from_dungeon_level([[5, 5], [10, 8], [20, 11]])
-# 	monster_chances['dog'] = from_dungeon_level([[80, 2], [0, 3]])
-# 	##robots:
-# 	monster_chances['manhack'] = from_dungeon_level([[20, 4], [25, 6], [30, 8]])
-# 	monster_chances['vturret'] = from_dungeon_level([[15, 5], [30, 7]])
-# 	monster_chances['replicant'] = from_dungeon_level([[5, 5], [10, 7], [20, 9]])
-#
-#
-# 	#choose random number of monsters
-# 	num_monsters = libtcod.random_get_int(0, 0, max_monsters)
-#
-# 	for i in range(num_monsters):
-# 		#choose random spot for this monster
-# 		x = libtcod.random_get_int(0, room.x1 + 1, room.x2 - 1)
-# 		y = libtcod.random_get_int(0, room.y1 + 1, room.y2 - 1)
-#
-# 		#only place it if the tile is not blocked
-# 		if not is_blocked(x, y):
-# 			choice = random_choice(monster_chances)
-# 			tmpData = monster_data[choice]
-# 			fighter_component = Fighter(my_path=0, lastx=0, lasty=0, hp=tmpData['hp'], defense=tmpData['defense'], strength=tmpData['strength'], dexterity=tmpData['dexterity'],
-# 										perception=tmpData['perception'], firearmdmg=tmpData['firearmdmg'], intelligence=tmpData['intelligence'], firearmacc=tmpData['firearmacc'], eloyalty=0, vloyalty=0, ammo=tmpData['ammo'],
-# 										charge=0, xp=tmpData['xp'], move_speed=tmpData['move_speed'], flicker=0, robot=tmpData['robot'], death_function=tmpData['death_function'], creddrop=tmpData['creddrop'])
-# 			ai_component = BasicMonster()
-# 			monster = Object(x, y, tmpData['character'], tmpData['name'], tmpData['character_color'], tmpData['desc'], blocks=True, fighter=fighter_component, ai=ai_component)
-# 			objects.append(monster)
 def place_monsters(room):
 	max_monsters = from_dungeon_level([[2, 1], [3, 5], [4, 8]])
 	#chance of each monster
@@ -1715,7 +1680,7 @@ def main_menu():
 		elif choice == 2:  #quit
 			break
 
-libtcod.console_set_custom_font('dejavu12x12.png', libtcod.FONT_TYPE_GRAYSCALE | libtcod.FONT_LAYOUT_TCOD)
+libtcod.console_set_custom_font('dejavu16x16.png', libtcod.FONT_TYPE_GRAYSCALE | libtcod.FONT_LAYOUT_TCOD)
 #libtcod.console_set_custom_font('Bisasam20x20.png', libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_ASCII_INROW)
 libtcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT, 'A Scream in Space', False)
 libtcod.sys_set_fps(LIMIT_FPS)
