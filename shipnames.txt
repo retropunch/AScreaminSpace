@@ -1,6 +1,6 @@
 name "shipnames" {
 syllablesStart= "RPS, OCS, THGEV"
-syllablesMiddle = "Vostok, Voskhod, Buran, Mercury, Gemini, Apollo, Salyut, Skylab, Almaz, Mir, Merkur, Pandora, Parthian, Perseus, Phoenix, Poseidon, Proteus, Amphion, Astute, Auriga, Aurochs, Alcide, Alderney, Alliance, Ambush, Anchorite, Andrew, Affray, Aeneas, Alaric, Artemis, Acheron, Achates, Upholder, Unseen, Ursula, Unicorn, Ajax, Just Testing, Xenophobe, Jaundiced_Outlook, Problem_Child, Reasonable_Excuse, Recent_Convert, Tactical_Grace, Unacceptable_Behaviour, Steely_Glint, Highpoint, Shoot_Them_Later"
+syllablesMiddle = "Vostok, Voskhod, Buran, Mercury, Gemini, Apollo, Salyut, Skylab, Almaz, Mir, Merkur, Pandora, Parthian, Perseus, Phoenix, Poseidon, Proteus, Amphion, Astute, Auriga, Aurochs, Alcide, Alderney, Alliance, Ambush, Anchorite, Andrew, Affray, Aeneas, Alaric, Artemis, Acheron, Achates, Upholder, Unseen, Ursula, Unicorn, Ajax, Just_Testing, Xenophobe, Jaundiced_Outlook, Problem_Child, Reasonable_Excuse, Recent_Convert, Tactical_Grace, Unacceptable_Behaviour, Steely_Glint, Highpoint, Shoot_Them_Later"
 rules = "$s_$m"
 }
 

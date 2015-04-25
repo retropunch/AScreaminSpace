@@ -495,6 +495,15 @@ def is_blocked(x, y):
 
 	return False
 
+def random_unblocked_tile_on_map():
+	tries = 1000
+	#1000 tries, and we'll punt - most probably producing an error in the calling code
+	for i in range(tries):
+		x = libtcod.random_get_int(0, 0, MAP_WIDTH - 1)
+		y = libtcod.random_get_int(0, 0, MAP_HEIGHT - 1)
+		if not is_blocked(x, y):
+			return x, y
+
 def sightblocked (x, y):
 	map[x][y].block_sight = True
 
@@ -690,10 +699,9 @@ def make_map():
 		objects.append(stairs)
 		stairs.send_to_back()  #so it's drawn below the monsters
 
-		upstairs = Object(2, 3, '>', 'upstairs', libtcod.white, always_visible=True)
+		upstairs = Object(new_x, new_y, '>', 'upstairs', libtcod.white, always_visible=True)
+		upstairs.x, upstairs.y = random_unblocked_tile_on_map()
 		objects.append(upstairs)
-		#upstairs.x, u
-		# pstairs.y = random_unblocked_tile_on_map()
 		upstairs.send_to_back()  #so it's drawn below the monsters
 
 def hub():
@@ -1073,6 +1081,7 @@ def render_all():
 	#print the game messages, one line at a time
 	y = 1
 	x = 1
+	libtcod.console_print_ex(panel, 1, 0, libtcod.BKGND_NONE, libtcod.LEFT,  str(dungeon_name))
 	for (line, color) in game_msgs:
 		libtcod.console_set_default_foreground(panel, color)
 		libtcod.console_print_ex(panel, x, y, libtcod.BKGND_NONE, libtcod.LEFT, line)
@@ -1093,7 +1102,7 @@ def render_all():
 	#render_bar(1, 3, BAR_WIDTH, 'Charge', player.fighter.charge, player.fighter.base_charge,
 	#		   libtcod.light_blue, libtcod.darker_blue)
 
-	libtcod.console_print_ex(sidebar, 1, 4, libtcod.BKGND_NONE, libtcod.LEFT,  str(dungeon_name))
+
 	#
 	# libtcod.console_print_ex(sidebar, 1, 5, libtcod.BKGND_NONE, libtcod.LEFT, 'Hunger:' + str(hunger_stat))
 	# libtcod.console_print_ex(sidebar, 1, 8, libtcod.BKGND_NONE, libtcod.LEFT, 'Cr:' + str(cred))
@@ -1307,6 +1316,11 @@ def handle_keys():
 				#go down stairs, if the player is on them
 				if stairs.x == player.x and stairs.y == player.y:
 					next_level()
+
+			if key_char == '>':
+				#go down stairs, if the player is on them
+				if upstairs.x == player.x and upstairs.y == player.y:
+					past_level()
  
 			return 'didnt-take-turn'
  
@@ -1496,14 +1510,14 @@ def load_game():
 def new_game():
 	global player, inventory, game_msgs, game_state, dungeon_level, dungeon_name
 	#create object representing the player
-	fighter_component = Fighter(my_path=0, lastx=0, lasty=0,hp=100, defense=1, power=2, xp=0, flicker=0, death_function=player_death)
+	fighter_component = Fighter(my_path=0, lastx=0, lasty=0,hp=500, defense=1, power=8, xp=0, flicker=0, death_function=player_death)
 	player = Object(20, 12, '@', 'player', libtcod.white, blocks=True, fighter=fighter_component)
  
 	player.level = 1
  
 	#generate map (at this point it's not drawn to the screen)
 	dungeon_level = 1
-	dungeon_name = "hello"
+	dungeon_name = "The Ship"
 	make_map()
 	initialize_fov()
  
@@ -1556,7 +1570,7 @@ def next_level():
 
 def past_level():
 	#advance to the next level
-	global dungeon_level, map, objects, player, stairs, upstairs, inventory, game_msgs, game_state, dungeon_level
+	global dungeon_level, dungeon_name, map, objects, player, stairs, upstairs, inventory, game_msgs, game_state, dungeon_level
 	global color_dark_wall, color_light_wall, color_dark_ground, color_light_ground
 
 	dungeon_level -= 1
@@ -1568,7 +1582,7 @@ def past_level():
 		stairs = objects[file['stairs_index']]  #same for the stairs
 		#upstairs = objects[file['upstairs_index']]
 		file.close()
-
+		dungeon_name = "The Ship"
 		message('You climb through the airlock back into the ship')
 		initialize_fov()
 
