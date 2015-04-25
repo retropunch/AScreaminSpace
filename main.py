@@ -2,16 +2,17 @@
 #
 # libtcod python tutorial
 #
- 
+
 import libtcodpy as libtcod
 import os
 import math
 import textwrap
 import random
 import shelve
+import mapcreate
 import maps
- 
- 
+
+
 #actual size of the window
 SCREEN_WIDTH = 59
 SCREEN_HEIGHT = 35
@@ -208,7 +209,10 @@ class Fighter:
 		self.death_function = death_function
 
 		self.flicker = flicker
- 
+ 		if isinstance(death_function, str):
+			self.death_function = globals()[death_function]
+		else:
+			self.death_function = death_function
 	@property
 	def power(self):  #return actual power, by summing up the bonuses from all equipped items
 		bonus = sum(equipment.power_bonus for equipment in get_all_equipped(self.owner))
@@ -261,10 +265,18 @@ class Fighter:
  
 		if damage > 0:
 			#make the target take some damage
-			message(self.owner.name.capitalize() + ' attacks ' + target.name + ' for ' + str(damage) + ' hit points.')
-			target.fighter.take_damage(damage)
+			if self.owner == player:
+				message(self.owner.name.capitalize() + ' attacks the ' + target.name + ' for ' + str(damage) + ' hit points.')
+				target.fighter.take_damage(damage)
+			else:
+				message('The ' + self.owner.name.capitalize() + ' attacks ' + target.name + ' for ' + str(damage) + ' hit points.')
+				target.fighter.take_damage(damage)
+
 		else:
-			message(self.owner.name.capitalize() + ' attacks ' + target.name + ' but it has no effect!')
+			if self.owner == player:
+				message(self.owner.name.capitalize() + ' attacks the ' + target.name + ' but it has no effect!')
+			else:
+				message('The ' + self.owner.name.capitalize() + ' attacks ' + target.name + ' but it has no effect!')
  
 	def take_damage(self, damage):
 		#apply damage if possible
@@ -400,37 +412,6 @@ class Equipment:
 		self.is_equipped = False
 		message('Dequipped ' + self.owner.name + ' from ' + self.slot + '.', libtcod.light_yellow)
  
- 
-def get_equipped_in_slot(slot):  #returns the equipment in a slot, or None if it's empty
-	for obj in inventory:
-		if obj.equipment and obj.equipment.slot == slot and obj.equipment.is_equipped:
-			return obj.equipment
-	return None
- 
-def get_all_equipped(obj):  #returns a list of equipped items
-	if obj == player:
-		equipped_list = []
-		for item in inventory:
-			if item.equipment and item.equipment.is_equipped:
-				equipped_list.append(item.equipment)
-		return equipped_list
-	else:
-		return []  #other objects have no equipment
-
-def is_blocked(x, y):
-	#first test the map tile
-	if map[x][y].blocked:
-		return True
-
-	#now check for any blocking objects
-	for object in objects:
-		if object.blocks and object.x == x and object.y == y:
-			return True
-
-	return False
-
-def sightblocked (x, y):
-	map[x][y].block_sight = True
 
 def create_room(room):
 	global map
@@ -485,6 +466,37 @@ def create_v_tunnel(y1, y2, x):
 	for y in range(min(y1, y2), max(y1, y2) + 1):
 		map[x][y].blocked = False
 		map[x][y].block_sight = False
+
+def get_equipped_in_slot(slot):  #returns the equipment in a slot, or None if it's empty
+	for obj in inventory:
+		if obj.equipment and obj.equipment.slot == slot and obj.equipment.is_equipped:
+			return obj.equipment
+	return None
+ 
+def get_all_equipped(obj):  #returns a list of equipped items
+	if obj == player:
+		equipped_list = []
+		for item in inventory:
+			if item.equipment and item.equipment.is_equipped:
+				equipped_list.append(item.equipment)
+		return equipped_list
+	else:
+		return []  #other objects have no equipment
+
+def is_blocked(x, y):
+	#first test the map tile
+	if map[x][y].blocked:
+		return True
+
+	#now check for any blocking objects
+	for object in objects:
+		if object.blocks and object.x == x and object.y == y:
+			return True
+
+	return False
+
+def sightblocked (x, y):
+	map[x][y].block_sight = True
 
 def move_camera(target_x, target_y):
 	global camera_x, camera_y, fov_recompute
@@ -541,7 +553,7 @@ class MonsterDataListener:
 			del monster_data[self.current_name]
 			self.current_name = None
 		return True
- 
+
 def make_map():
 	global map, objects, stairs, upstairs, factorystairs, factoryexitstairs, MAP_HEIGHT, MAP_WIDTH, color_dark_wall, color_light_wall,color_dark_ground, color_light_ground
 
@@ -1090,7 +1102,7 @@ def render_all():
 	libtcod.console_set_default_background(panel, libtcod.black)
 	libtcod.console_clear(panel)
 	libtcod.console_print_frame(panel, 0, 0, 43, PANEL_HEIGHT, clear=False, flag=libtcod.BKGND_ADD, fmt=0)
-	libtcod.console_set_custom_font('dejavu12x12.png', libtcod.FONT_TYPE_GRAYSCALE | libtcod.FONT_LAYOUT_ASCII_INROW)
+
 
 
 	#print the game messages, one line at a time
@@ -1260,7 +1272,7 @@ def inventory_menu(header):
 	#if an item was chosen, return it
 	if index is None or len(inventory) == 0: return None
 	return inventory[index].item
- 
+
 
  
 def handle_keys():
@@ -1315,6 +1327,9 @@ def handle_keys():
 				chosen_item = inventory_menu('Press the key next to an item to drop it, or any other to cancel.\n')
 				if chosen_item is not None:
 					chosen_item.drop()
+
+			if key_char == 'j':
+				next_level()
  
 			if key_char == 'c':
 				#show character information
@@ -1365,6 +1380,9 @@ def player_death(player):
 	player.color = libtcod.dark_red
  
 def monster_death(monster):
+	global camera_x, camera_y
+	#transform it into a nasty corpse! it doesn't block, can't be
+	#attacked and doesn't move
 	message('The ' + monster.name + ' is dead! You gain ' + str(monster.fighter.xp) + ' XP',
 			libtcod.orange)
 	monster.char = '%'
@@ -1696,11 +1714,14 @@ def main_menu():
 			play_game()
 		elif choice == 2:  #quit
 			break
-libtcod.console_set_custom_font('Bisasam20x20.png', libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_ASCII_INROW)
+
+libtcod.console_set_custom_font('dejavu12x12.png', libtcod.FONT_TYPE_GRAYSCALE | libtcod.FONT_LAYOUT_TCOD)
+#libtcod.console_set_custom_font('Bisasam20x20.png', libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_ASCII_INROW)
 libtcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT, 'A Scream in Space', False)
 libtcod.sys_set_fps(LIMIT_FPS)
 con = libtcod.console_new(MAP_WIDTH, MAP_HEIGHT)
 panel = libtcod.console_new(SCREEN_WIDTH, PANEL_HEIGHT)
+
 sidebar = libtcod.console_new(SIDEBAR_WIDTH, SCREEN_HEIGHT)
 monster_data = {}
 load_data()
